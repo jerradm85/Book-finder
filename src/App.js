@@ -1,26 +1,77 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React from 'react'
+import './App.css'
+import Main from './Components/Main'
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+class App extends React.Component {
+  state = {
+    response: {}
+  }
+
+  handleSubmit = (e) => {
+    e.preventDefault();
+    const search = e.target.search.value
+    const print = e.target.printType.value
+    const book = e.target.bookType.value
+
+    const apiKey = `AIzaSyCa17vNeskm0h1Vo3FJ_1NTAA2MmM2R6iM`;
+    const url = `https://www.googleapis.com/books/v1/volumes`;
+
+    const query = `${url}?q=${search}&filter=${book}&printType=${print}&key=${apiKey}`;
+    const options = {
+        method: `GET`
+    }
+
+    fetch(query, options)
+    .then(res => {
+        if(!res.ok) {
+            throw new Error('Something went wrong')
+        }
+        return res;
+    })
+    .then(res => res.json())
+    .then(resJson => {
+        console.log(resJson);
+        this.setState({
+            response: resJson
+        })
+    })
 }
 
+  render() {
+
+    return (
+      <div className="container">
+                <header>
+                    <h1>Google book Search</h1>
+                </header>
+                <form className="form" onSubmit={this.handleSubmit}>
+                    <section className="searchBar">
+                        <label>Search:</label>
+                        <input name="search" placeholder="Brothers Grimm"></input>
+                        <button>Search</button>
+                    </section>
+                    <section className="filters">
+                        <label>Print Type:</label>
+                        <select className="printType" name="printType">
+                            <option>All</option>
+                            <option>Books</option>
+                            <option>Magazines</option>
+                        </select>
+                        <label>Book Type:</label>
+                        <select className="bookType" name="bookType">
+                            <option>Partial</option>
+                            <option>Full</option>
+                            <option>Free-ebooks</option>
+                            <option>Paid-ebooks</option>
+                            <option>Ebooks</option>
+                        </select>
+                    </section>
+                    <section>
+                        <Main response={this.state.response}/>
+                    </section>
+                </form>
+            </div>
+    )
+  }
+}
 export default App;
